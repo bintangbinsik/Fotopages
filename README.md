@@ -1,0 +1,2 @@
+# Fotopages
+SMA ISSUDA 2026 FOTO PAGES
