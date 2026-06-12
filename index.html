@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Galeri Otomatis Isi Folder Drive</title>
+    <style>
+        :root {
+            --background: #0f172a;
+            --surface: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            padding: 16px;
+            min-height: 100vh;
+        }
+
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        header h1 { font-size: 24px; color: #818cf8; }
+        header p { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+
+        .loading { text-align: center; padding: 40px; color: var(--text-muted); font-style: italic; }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        @media (min-width: 640px) { .photo-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 1024px) { .photo-grid { grid-template-columns: repeat(4, 1fr); } }
+
+        .photo-card {
+            background-color: var(--surface);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .img-container { width: 100%; aspect-ratio: 1/1; background-color: #0f172a; }
+        .img-container img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-details { padding: 10px; }
+        .photo-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1 id="title">GALERI ISSUDA XII.4 2026</h1>
+            <p>Membaca seluruh isi folder secara realtime</p>
+        </header>
+
+        <div id="loader" class="loading">Sedang membaca isi folder Drive Anda... Beri waktu sejenak ☕</div>
+
+        <div class="photo-grid" id="gallery"></div>
+    </div>
+
+    <script>
+        // TEMPELKAN WEB APP URL YANG ANDA DAPATKAN DARI GOOGLE APPS SCRIPT DI SINI
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbzfxYmCZNgQNmpqNlvY6avG4r1VgpHrb8YdIAK5a-sEgNv7stdEgRitL1lEQYWfKxbS4Q/exec";
+
+        async function loadFolderContents() {
+            try {
+                const response = await fetch(scriptUrl);
+                const files = await response.json();
+                
+                const gallery = document.getElementById('gallery');
+                const loader = document.getElementById('loader');
+                
+                if (files.length === 0) {
+                    loader.innerText = "Folder kosong atau tidak ada file gambar.";
+                    return;
+                }
+
+                // Sembunyikan pesan loading jika file ditemukan
+                loader.style.display = 'none';
+
+                // Render setiap foto yang ditemukan di folder secara otomatis
+                files.forEach(file => {
+                    const card = document.createElement('div');
+                    card.className = 'photo-card';
+                    card.innerHTML = `
+                        <div class="img-container">
+                            <img src="https://lh3.googleusercontent.com/d/${file.id}=s400" alt="${file.name}">
+                        </div>
+                        <div class="photo-details">
+                            <div class="photo-name">${file.name.split('.')[0]}</div>
+                        </div>
+                    `;
+                    gallery.appendChild(card);
+                });
+
+            } catch (error) {
+                document.getElementById('loader').innerText = "Gagal memuat folder. Pastikan URL Script benar dan folder di-share ke Publik.";
+                console.error(error);
+            }
+        }
+
+        // Jalankan fungsi membaca folder
+        loadFolderContents();
+    </script>
+</body>
+</html>
